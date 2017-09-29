@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -27,6 +28,9 @@ import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -92,21 +96,51 @@ public class MainActivity extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 int i = 0;
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    int id = 0;
+                    int textId = 0;
+                    int imageId = 0;
                     if (i == 0) {
-                        id = R.id.message;
+                        textId = R.id.message;
+                        imageId = R.id.imageView;
                     } else if (i == 1) {
-                        id = R.id.message2;
+                        textId = R.id.message2;
+                        imageId = R.id.imageView2;
                     } else if (i == 2) {
-                        id = R.id.message3;
+                        textId = R.id.message3;
+                        imageId = R.id.imageView3;
                     }
 
-                    if (id == R.id.message || id == R.id.message2 || id == R.id.message3) {
-                        TextView text = (TextView) findViewById(id);
-                        text.setText(snapshot.getValue(String.class));
+                    if (textId == R.id.message || textId == R.id.message2 || textId == R.id.message3) {
+                        String uri = snapshot.getValue(String.class);
+                        final TextView text = (TextView) findViewById(textId);
+                        text.setText(uri);
+
+                        launchAsyncImageLoader(uri, imageId);
                     }
                     i++;
                 }
+            }
+
+            public void launchAsyncImageLoader(final String uri, final int imageId) {
+                final ImageView imageView = (ImageView) findViewById(imageId);
+
+                new AsyncTask<Void, Void, Bitmap>() {
+                    protected void onPreExecute() {
+                        // Pre Code
+                    }
+                    protected Bitmap doInBackground(Void... unused) {
+                        try {
+                            URL url = new URL(uri);
+                            Bitmap bitmap = BitmapFactory.decodeStream(url.openConnection().getInputStream());
+                            return bitmap;
+                        } catch (IOException e) {
+                            mMessage.setText("Error: " + e.getMessage());
+                        }
+                        return null;
+                    }
+                    protected void onPostExecute(Bitmap result) {
+                        imageView.setImageBitmap(result);
+                    }
+                }.execute();
             }
 
             @Override
