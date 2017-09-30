@@ -49,7 +49,6 @@ public class MainActivity extends AppCompatActivity {
     private StorageReference mStorageRef;
     private FirebaseDatabase mDB;
 
-    TextView mMessage;
     ImageView mImageResult;
     Button mClearPictureButton;
     Button mTakePictureButton;
@@ -66,7 +65,6 @@ public class MainActivity extends AppCompatActivity {
 
         mStorageRef = FirebaseStorage.getInstance().getReference();
         mDB = FirebaseDatabase.getInstance();
-        mMessage = (TextView) findViewById(R.id.message);
         mImageResult = (ImageView) findViewById(R.id.imageResult);
         mClearPictureButton = (Button) findViewById(R.id.clearPicture);
         mTakePictureButton = (Button) findViewById(R.id.takePicture);
@@ -120,7 +118,6 @@ public class MainActivity extends AppCompatActivity {
                 photoFile = createImageFile();
             } catch (IOException ex) {
                 // Error occurred while creating the File
-                mMessage.setText("Error: " + ex.getMessage());
             }
             // Continue only if the File was successfully created
             if (photoFile != null) {
@@ -162,7 +159,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void upload() {
         if (mImageResult.getDrawable() == null) {
-            mMessage.setText("Take or select a photo before uploading.");
             return;
         }
 
@@ -179,7 +175,6 @@ public class MainActivity extends AppCompatActivity {
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                 // Get a URL to the uploaded content
                 Uri downloadUrl = taskSnapshot.getDownloadUrl();
-                mMessage.setText(downloadUrl.toString());
                 addPhotoToList(downloadUrl.toString());
                 hidePicture();
             }
@@ -187,7 +182,6 @@ public class MainActivity extends AppCompatActivity {
         .addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception exception) {
-                mMessage.setText("Error: " + exception.getMessage());
             }
         });
     }
@@ -213,7 +207,6 @@ public class MainActivity extends AppCompatActivity {
                 mListAdapter = new ImageListAdapter(mContext, R.layout.image_item, urls);
                 ListView list = (ListView) findViewById(R.id.list);
                 list.setAdapter(mListAdapter);
-                mMessage.setText("urls: " + urls.size());
             }
         });
     }
@@ -234,7 +227,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 String val = dataSnapshot.getValue(String.class);
-                mMessage.setText("message changed to: " + val);
             }
 
             @Override
