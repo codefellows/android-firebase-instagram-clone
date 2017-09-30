@@ -32,6 +32,39 @@ public class ImageListAdapter extends ArrayAdapter<String> {
         TextView author;
         TextView timestamp;
         ImageView image;
+
+        public ViewHolder(View view) {
+            this.heart = view.findViewById(R.id.heart);
+            this.likes = view.findViewById(R.id.likes);
+            this.author = view.findViewById(R.id.author);
+            this.timestamp = view.findViewById(R.id.timestamp);
+            this.image = view.findViewById(R.id.image);
+
+            // just some default text for now.
+            this.likes.setText("11 likes");
+            this.author.setText("slothprovider @everyone here's more sloths for you!");
+            this.timestamp.setText("54 minutes ago");
+
+            configureHeartToggler();
+        }
+
+        private void configureHeartToggler() {
+            final Drawable emptyHeart = mContext.getResources().getDrawable(R.drawable.insta_heart_empty);
+            final Drawable fullHeart = mContext.getResources().getDrawable(R.drawable.insta_heart_full);
+            this.heart.setImageDrawable(emptyHeart);
+
+            this.heart.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    ImageView image = (ImageView) view;
+                    if (image.getDrawable() == emptyHeart) {
+                        ViewHolder.this.heart.setImageDrawable(fullHeart);
+                    } else {
+                        ViewHolder.this.heart.setImageDrawable(emptyHeart);
+                    }
+                }
+            });
+        }
     }
 
     public ImageListAdapter(Context context, int resource, List<String> urls) {
@@ -49,42 +82,15 @@ public class ImageListAdapter extends ArrayAdapter<String> {
     public View getView(int i, View convertView, ViewGroup parent) {
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.image_item, parent, false);
+            holder = new ViewHolder(convertView);
+            convertView.setTag(holder);
+        } else {
+            holder = (ViewHolder) convertView.getTag();
+            holder.image.setImageBitmap(null);
         }
-
-        holder = new ViewHolder();
-        holder.heart = convertView.findViewById(R.id.heart);
-        holder.likes = convertView.findViewById(R.id.likes);
-        holder.author = convertView.findViewById(R.id.author);
-        holder.timestamp = convertView.findViewById(R.id.timestamp);
-        holder.image = convertView.findViewById(R.id.image);
-
-        configureHeartToggler();
-
-        holder.likes.setText("11 likes");
-        holder.author.setText("slothprovider @everyone here's more sloths for you!");
-        holder.timestamp.setText("54 minutes ago");
 
         String url = getItem(i);
         new LoadImageTask(url, holder.image).execute();
         return convertView;
-    }
-
-    private void configureHeartToggler() {
-        final Drawable emptyHeart = mContext.getResources().getDrawable(R.drawable.insta_heart_empty);
-        final Drawable fullHeart = mContext.getResources().getDrawable(R.drawable.insta_heart_full);
-        holder.heart.setImageDrawable(emptyHeart);
-
-        holder.heart.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ImageView image = (ImageView) view;
-                if (image.getDrawable() == emptyHeart) {
-                    holder.heart.setImageDrawable(fullHeart);
-                } else {
-                    holder.heart.setImageDrawable(emptyHeart);
-                }
-            }
-        });
-
     }
 }
