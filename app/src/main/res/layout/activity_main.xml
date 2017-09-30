@@ -11,6 +11,13 @@
         android:text="Hello World!"
         android:textIsSelectable="true" />
 
+    <ImageView
+        android:id="@+id/imageResult"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scaleType="centerCrop"
+        android:adjustViewBounds="true" />
+
     <Button
         android:id="@+id/takePicture"
         android:text="Take Picture"

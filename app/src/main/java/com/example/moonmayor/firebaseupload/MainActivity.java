@@ -37,7 +37,9 @@ import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
@@ -56,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseDatabase mDB;
 
     TextView mMessage;
+    ImageView mImageResult;
     Button mTakePictureButton;
     Button mUploadButton;
 
@@ -72,6 +75,7 @@ public class MainActivity extends AppCompatActivity {
         mStorageRef = FirebaseStorage.getInstance().getReference();
         mDB = FirebaseDatabase.getInstance();
         mMessage = (TextView) findViewById(R.id.message);
+        mImageResult = (ImageView) findViewById(R.id.imageResult);
         mTakePictureButton = (Button) findViewById(R.id.takePicture);
         mUploadButton = (Button) findViewById(R.id.upload);
 
@@ -114,11 +118,26 @@ public class MainActivity extends AppCompatActivity {
                         photoFile);
                 // Including this option tells the Intent to write the photo result
                 // to a file location, and it does not return an image thumbnail.
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                boolean storeToFile = false;
+                if (storeToFile) {
+                    takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                }
                 startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
 
                 // add the picture to the phone's gallery
                 //galleryAddPic();
+            }
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if  (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+            Bitmap bitmap = null;
+            if (data != null) {
+                Bundle extras = data.getExtras();
+                bitmap = (Bitmap) extras.get("data");
+                mImageResult.setImageBitmap(bitmap);
             }
         }
     }
