@@ -11,7 +11,7 @@
         android:orientation="horizontal">
         <ImageView
             android:src="@drawable/icon"
-            android:id="@+id/imageResult"
+            android:id="@+id/preview"
             android:layout_width="50dip"
             android:layout_height="50dip"
             android:scaleType="centerCrop"
