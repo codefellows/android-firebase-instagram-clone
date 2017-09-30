@@ -12,7 +12,6 @@ import android.support.annotation.NonNull;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -53,9 +52,7 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseDatabase mDB;
 
     ImageView mImageResult;
-    Button mClearPictureButton;
     Button mTakePictureButton;
-    Button mUploadButton;
 
     private ListAdapter mListAdapter;
 
@@ -69,9 +66,7 @@ public class MainActivity extends AppCompatActivity {
         mStorageRef = FirebaseStorage.getInstance().getReference();
         mDB = FirebaseDatabase.getInstance();
         mImageResult = (ImageView) findViewById(R.id.imageResult);
-        mClearPictureButton = (Button) findViewById(R.id.clearPicture);
         mTakePictureButton = (Button) findViewById(R.id.takePicture);
-        mUploadButton = (Button) findViewById(R.id.upload);
 
 
         attachClickListeners();
@@ -79,37 +74,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void attachClickListeners() {
-        mClearPictureButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                hidePicture();
-            }
-        });
-
         mTakePictureButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 takePicture();
             }
         });
-
-        mUploadButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                upload();
-            }
-        });
     }
 
     private void hidePicture() {
         mImageResult.setVisibility(View.GONE);
-        mClearPictureButton.setVisibility(View.GONE);
-        mUploadButton.setVisibility(View.GONE);
-    }
-
-    private void showCancelButton() {
-        mClearPictureButton.setVisibility(View.VISIBLE);
-        mUploadButton.setVisibility(View.VISIBLE);
     }
 
     private void takePicture() {
@@ -149,6 +123,7 @@ public class MainActivity extends AppCompatActivity {
             String description = extras.getString(PreparePostActivity.EXTRA_DESCRIPTION);
 
             setPicFromFile(filepath);
+            upload();
         } else if  (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
             Bitmap bitmap = null;
             if (data != null) {
@@ -162,9 +137,6 @@ public class MainActivity extends AppCompatActivity {
                     intent.putExtra(PreparePostActivity.EXTRA_FILEPATH, mCurrentPhotoPath);
                     startActivityForResult(intent, REQUEST_PREPARE_POST);
                 }
-
-                // enable the cancel button once a picture appears.
-                showCancelButton();
             }
         }
     }
