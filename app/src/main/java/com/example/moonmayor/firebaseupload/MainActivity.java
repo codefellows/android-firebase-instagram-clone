@@ -12,6 +12,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -38,9 +39,12 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import static android.provider.AlarmClock.EXTRA_MESSAGE;
+
 public class MainActivity extends AppCompatActivity {
 
     private final int REQUEST_IMAGE_CAPTURE = 1;
+    private final int REQUEST_PREPARE_POST = 2;
     private String mCurrentPhotoPath;
 
     Context mContext;
@@ -139,7 +143,13 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if  (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+        if (requestCode == REQUEST_PREPARE_POST && resultCode == RESULT_OK) {
+            Bundle extras = data.getExtras();
+            String filepath = extras.getString(PreparePostActivity.EXTRA_FILEPATH);
+            String description = extras.getString(PreparePostActivity.EXTRA_DESCRIPTION);
+
+            setPicFromFile(filepath);
+        } else if  (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
             Bitmap bitmap = null;
             if (data != null) {
                 Bundle extras = data.getExtras();
@@ -147,7 +157,10 @@ public class MainActivity extends AppCompatActivity {
                     bitmap = (Bitmap) extras.get("data");
                     mImageResult.setImageBitmap(bitmap);
                 } else {
-                   setPicFromFile();
+                    // Send user to the PreparePost activity.
+                    Intent intent = new Intent(MainActivity.this, PreparePostActivity.class);
+                    intent.putExtra(PreparePostActivity.EXTRA_FILEPATH, mCurrentPhotoPath);
+                    startActivityForResult(intent, REQUEST_PREPARE_POST);
                 }
 
                 // enable the cancel button once a picture appears.
@@ -242,7 +255,7 @@ public class MainActivity extends AppCompatActivity {
         this.sendBroadcast(mediaScanIntent);
     }
 
-    private void setPicFromFile() {
+    private void setPicFromFile(String filepath) {
         // Get the dimensions of the View
         int targetW = mImageResult.getWidth();
         int targetH = mImageResult.getHeight();
@@ -250,7 +263,7 @@ public class MainActivity extends AppCompatActivity {
         // Get the dimensions of the bitmap
         BitmapFactory.Options bmOptions = new BitmapFactory.Options();
         bmOptions.inJustDecodeBounds = true;
-        BitmapFactory.decodeFile(mCurrentPhotoPath, bmOptions);
+        BitmapFactory.decodeFile(filepath, bmOptions);
         int photoW = bmOptions.outWidth;
         int photoH = bmOptions.outHeight;
 
