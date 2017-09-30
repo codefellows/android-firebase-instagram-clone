@@ -131,14 +131,14 @@ public class MainActivity extends AppCompatActivity {
                         photoFile);
                 // Including this option tells the Intent to write the photo result
                 // to a file location, and it does not return an image thumbnail.
-                boolean storeToFile = false;
+                boolean storeToFile = true;
                 if (storeToFile) {
                     takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
                 }
                 startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
 
                 // add the picture to the phone's gallery
-                //galleryAddPic();
+                galleryAddPic();
             }
         }
     }
@@ -149,8 +149,12 @@ public class MainActivity extends AppCompatActivity {
             Bitmap bitmap = null;
             if (data != null) {
                 Bundle extras = data.getExtras();
-                bitmap = (Bitmap) extras.get("data");
-                mImageResult.setImageBitmap(bitmap);
+                if (extras != null) {
+                    bitmap = (Bitmap) extras.get("data");
+                    mImageResult.setImageBitmap(bitmap);
+                } else {
+                   setPicFromFile();
+                }
             }
         }
     }
@@ -253,5 +257,38 @@ public class MainActivity extends AppCompatActivity {
         // Save a file: path for use with ACTION_VIEW intents
         mCurrentPhotoPath = image.getAbsolutePath();
         return image;
+    }
+
+    private void galleryAddPic() {
+        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+        File f = new File(mCurrentPhotoPath);
+        Uri contentUri = Uri.fromFile(f);
+        mediaScanIntent.setData(contentUri);
+        this.sendBroadcast(mediaScanIntent);
+    }
+
+    private void setPicFromFile() {
+        // Get the dimensions of the View
+        int targetW = mImageResult.getWidth();
+        int targetH = mImageResult.getHeight();
+
+        // Get the dimensions of the bitmap
+        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+        bmOptions.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(mCurrentPhotoPath, bmOptions);
+        int photoW = bmOptions.outWidth;
+        int photoH = bmOptions.outHeight;
+
+        // Determine how much to scale down the image
+        // Always use width because the height right now is set to zero.
+        int scaleFactor = photoW/targetW;
+
+        // Decode the image file into a Bitmap sized to fill the View
+        bmOptions.inJustDecodeBounds = false;
+        bmOptions.inSampleSize = scaleFactor;
+        bmOptions.inPurgeable = true;
+
+        Bitmap bitmap = BitmapFactory.decodeFile(mCurrentPhotoPath, bmOptions);
+        mImageResult.setImageBitmap(bitmap);
     }
 }
