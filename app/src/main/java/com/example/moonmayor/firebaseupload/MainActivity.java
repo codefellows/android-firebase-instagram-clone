@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.database.DataSetObserver;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -59,10 +60,10 @@ public class MainActivity extends AppCompatActivity {
 
     TextView mMessage;
     ImageView mImageResult;
+    Button mClearPictureButton;
     Button mTakePictureButton;
     Button mUploadButton;
 
-    private List<String> imageUrls;
     private ListAdapter mListAdapter;
 
     @Override
@@ -76,6 +77,7 @@ public class MainActivity extends AppCompatActivity {
         mDB = FirebaseDatabase.getInstance();
         mMessage = (TextView) findViewById(R.id.message);
         mImageResult = (ImageView) findViewById(R.id.imageResult);
+        mClearPictureButton = (Button) findViewById(R.id.clearPicture);
         mTakePictureButton = (Button) findViewById(R.id.takePicture);
         mUploadButton = (Button) findViewById(R.id.upload);
 
@@ -85,6 +87,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void attachClickListeners() {
+        mClearPictureButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                clearPicture();
+            }
+        });
+
         mTakePictureButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -98,6 +107,10 @@ public class MainActivity extends AppCompatActivity {
                 upload();
             }
         });
+    }
+
+    private void clearPicture() {
+        mImageResult.setVisibility(View.GONE);
     }
 
     private void takePicture() {
@@ -148,21 +161,20 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.threebody);
+        Bitmap bitmap = ((BitmapDrawable) mImageResult.getDrawable()).getBitmap();
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
         byte[] bytes = baos.toByteArray();
 
-        StorageReference riversRef = mStorageRef.child("images/rivers.jpg");
-
-        riversRef.putBytes(bytes)
+        String bitmapKey = "" + bitmap.hashCode();
+        StorageReference storage = mStorageRef.child("images/" + bitmapKey + ".jpg");
+        storage.putBytes(bytes)
         .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                 // Get a URL to the uploaded content
                 Uri downloadUrl = taskSnapshot.getDownloadUrl();
                 mMessage.setText(downloadUrl.toString());
-
                 addPhotoToList(downloadUrl.toString());
             }
         })
@@ -175,8 +187,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void loadPictures() {
-        final List<String> urls = new ArrayList<>();
-
         DatabaseReference photoRef = mDB.getReference().child("photos");
         photoRef.addValueEventListener(new ValueEventListener() {
             @Override
@@ -184,18 +194,17 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                int i = 0;
+                List<String> urls = new ArrayList<>();
+
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     String uri = snapshot.getValue(String.class);
                     urls.add(uri);
-                    i++;
                 }
 
                 mListAdapter = new ImageListAdapter(mContext, R.layout.image_item, urls);
                 ListView list = (ListView) findViewById(R.id.list);
                 list.setAdapter(mListAdapter);
                 mMessage.setText("urls: " + urls.size());
-
             }
         });
     }
@@ -205,12 +214,6 @@ public class MainActivity extends AppCompatActivity {
 
         DatabaseReference pushRef = photoRef.push();
         pushRef.setValue(url);
-
-        pushRef = photoRef.push();
-        pushRef.setValue(url + "2");
-
-        pushRef = photoRef.push();
-        pushRef.setValue(url + "3");
     }
 
     private void attachDBListeners() {

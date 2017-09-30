@@ -33,12 +33,14 @@ public class ImageListAdapter extends ArrayAdapter<String> {
         mUrls = urls;
     }
 
+    public void add(String url) {
+        mUrls.add(url);
+        this.notifyDataSetChanged();
+    }
+
     @Override
     public View getView(int i, View convertView, ViewGroup parent) {
-
-        boolean isInflated = true;
         if (convertView == null) {
-            isInflated = false;
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.image_item, parent, false);
         }
 
@@ -50,10 +52,7 @@ public class ImageListAdapter extends ArrayAdapter<String> {
         String url = getItem(i);
         holder.url.setText(url);
 
-        if (!isInflated) {
-            new LoadImageTask(url, holder.image).execute();
-        }
-
+        new LoadImageTask(url, holder.image).execute();
         return convertView;
     }
 }
