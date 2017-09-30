@@ -20,7 +20,8 @@
 
     <Button
         android:id="@+id/clearPicture"
-        android:text="Hide Picture"
+        android:text="Cancel"
+        android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
     <Button
@@ -31,6 +32,7 @@
     <Button
         android:id="@+id/upload"
         android:text="Upload"
+        android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 

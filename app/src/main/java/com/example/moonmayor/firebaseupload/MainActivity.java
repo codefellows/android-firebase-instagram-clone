@@ -102,6 +102,13 @@ public class MainActivity extends AppCompatActivity {
 
     private void hidePicture() {
         mImageResult.setVisibility(View.GONE);
+        mClearPictureButton.setVisibility(View.GONE);
+        mUploadButton.setVisibility(View.GONE);
+    }
+
+    private void showCancelButton() {
+        mClearPictureButton.setVisibility(View.VISIBLE);
+        mUploadButton.setVisibility(View.VISIBLE);
     }
 
     private void takePicture() {
@@ -146,6 +153,9 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                    setPicFromFile();
                 }
+
+                // enable the cancel button once a picture appears.
+                showCancelButton();
             }
         }
     }
