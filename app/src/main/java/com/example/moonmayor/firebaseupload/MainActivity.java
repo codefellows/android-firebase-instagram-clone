@@ -143,6 +143,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void upload() {
+        if (mImageResult.getDrawable() == null) {
+            mMessage.setText("Take or select a photo before uploading.");
+            return;
+        }
+
         Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.threebody);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
