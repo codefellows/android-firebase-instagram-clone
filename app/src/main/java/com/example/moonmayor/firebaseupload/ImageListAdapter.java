@@ -20,7 +20,6 @@ import java.util.List;
 
 public class ImageListAdapter extends ArrayAdapter<String> {
 
-    private final LayoutInflater inflater;
     private List<String> mUrls;
     private ViewHolder holder;
 
@@ -32,22 +31,29 @@ public class ImageListAdapter extends ArrayAdapter<String> {
     public ImageListAdapter(Context context, int resource, List<String> urls) {
         super(context, resource, urls);
         mUrls = urls;
-        inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
     @Override
-    public View getView(int i, View view, ViewGroup viewGroup) {
-        view = inflater.inflate(R.layout.image_item, null);
+    public View getView(int i, View convertView, ViewGroup parent) {
+
+        boolean isInflated = true;
+        if (convertView == null) {
+            isInflated = false;
+            convertView = LayoutInflater.from(getContext()).inflate(R.layout.image_item, parent, false);
+        }
+
         holder = new ViewHolder();
-        holder.url = view.findViewById(R.id.url);
-        holder.image = view.findViewById(R.id.image);
+        holder.url = convertView.findViewById(R.id.url);
+        holder.image = convertView.findViewById(R.id.image);
 
 
         String url = getItem(i);
         holder.url.setText(url);
 
-        new LoadImageTask(url, holder.image).execute();
+        if (!isInflated) {
+            new LoadImageTask(url, holder.image).execute();
+        }
 
-        return view;
+        return convertView;
     }
 }
