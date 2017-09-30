@@ -107,13 +107,14 @@ public class MainActivity extends AppCompatActivity {
         DatabaseReference photoRef = mDB.getReference().child("photos");
         photoRef.addValueEventListener(new ValueEventListener() {
             @Override
+            public void onCancelled(DatabaseError error) { }
+
+            @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 int i = 0;
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     String uri = snapshot.getValue(String.class);
                     urls.add(uri);
-
-                    //launchAsyncImageLoader(uri, imageId);
                     i++;
                 }
 
@@ -121,33 +122,6 @@ public class MainActivity extends AppCompatActivity {
                 ListView list = (ListView) findViewById(R.id.list);
                 list.setAdapter(mListAdapter);
                 mMessage.setText("urls: " + urls.size());
-            }
-
-            public void launchAsyncImageLoader(final String uri, final int imageId) {
-                final ImageView imageView = (ImageView) findViewById(imageId);
-
-                new AsyncTask<Void, Void, Bitmap>() {
-                    protected void onPreExecute() {
-                        // Pre Code
-                    }
-                    protected Bitmap doInBackground(Void... unused) {
-                        try {
-                            URL url = new URL(uri);
-                            Bitmap bitmap = BitmapFactory.decodeStream(url.openConnection().getInputStream());
-                            return bitmap;
-                        } catch (IOException e) {
-                            mMessage.setText("Error: " + e.getMessage());
-                        }
-                        return null;
-                    }
-                    protected void onPostExecute(Bitmap result) {
-                        imageView.setImageBitmap(result);
-                    }
-                }.execute();
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
 
             }
         });

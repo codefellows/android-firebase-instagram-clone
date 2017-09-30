@@ -42,8 +42,12 @@ public class ImageListAdapter extends ArrayAdapter<String> {
         holder.url = view.findViewById(R.id.url);
         holder.image = view.findViewById(R.id.image);
 
+
         String url = getItem(i);
         holder.url.setText(url);
+
+        new LoadImageTask(url, holder.image).execute();
+
         return view;
     }
 }
