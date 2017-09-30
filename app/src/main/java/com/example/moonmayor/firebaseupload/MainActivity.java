@@ -71,7 +71,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
         loadPictures();
     }
 
