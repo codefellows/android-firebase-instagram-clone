@@ -1,5 +1,7 @@
 package com.example.moonmayor.firebaseupload;
 
+import android.content.Context;
+import android.database.DataSetObserver;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
@@ -11,8 +13,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DrawableUtils;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ListAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnFailureListener;
@@ -31,25 +36,32 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
+
+    Context mContext;
 
     private StorageReference mStorageRef;
     private FirebaseDatabase mDB;
 
     TextView mMessage;
-    TextView mMessage2;
     Button mUploadButton;
+
+    private List<String> imageUrls;
+    private ListAdapter mListAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        mContext = this;
+
         mStorageRef = FirebaseStorage.getInstance().getReference();
         mDB = FirebaseDatabase.getInstance();
         mMessage = (TextView) findViewById(R.id.message);
-        mMessage2 = (TextView) findViewById(R.id.message2);
         mUploadButton = (Button) findViewById(R.id.upload);
 
         mUploadButton.setOnClickListener(new View.OnClickListener() {
@@ -58,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
                 upload();
             }
         });
+
 
         loadPictures();
     }
@@ -90,34 +103,25 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void loadPictures() {
+        final List<String> urls = new ArrayList<>();
+
         DatabaseReference photoRef = mDB.getReference().child("photos");
         photoRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 int i = 0;
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    int textId = 0;
-                    int imageId = 0;
-                    if (i == 0) {
-                        textId = R.id.message;
-                        imageId = R.id.imageView;
-                    } else if (i == 1) {
-                        textId = R.id.message2;
-                        imageId = R.id.imageView2;
-                    } else if (i == 2) {
-                        textId = R.id.message3;
-                        imageId = R.id.imageView3;
-                    }
+                    String uri = snapshot.getValue(String.class);
+                    urls.add(uri);
 
-                    if (textId == R.id.message || textId == R.id.message2 || textId == R.id.message3) {
-                        String uri = snapshot.getValue(String.class);
-                        final TextView text = (TextView) findViewById(textId);
-                        text.setText(uri);
-
-                        launchAsyncImageLoader(uri, imageId);
-                    }
+                    //launchAsyncImageLoader(uri, imageId);
                     i++;
                 }
+
+                mListAdapter = new ImageListAdapter(mContext, R.layout.image_item, urls);
+                ListView list = (ListView) findViewById(R.id.list);
+                list.setAdapter(mListAdapter);
+                mMessage.setText("urls: " + urls.size());
             }
 
             public void launchAsyncImageLoader(final String uri, final int imageId) {
@@ -148,7 +152,6 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-
     }
 
     private void addPhotoToList(String url) {
@@ -168,20 +171,6 @@ public class MainActivity extends AppCompatActivity {
         DatabaseReference myRef = mDB.getReference().child("message");
         myRef.setValue("what up");
         myRef.push();
-
-        DatabaseReference myRef2 = mDB.getReference().child("message2");
-        myRef2.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                String val = dataSnapshot.getValue(String.class);
-                mMessage2.setText("message changed to: " + val);
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
 
         myRef.addValueEventListener(new ValueEventListener() {
             @Override
