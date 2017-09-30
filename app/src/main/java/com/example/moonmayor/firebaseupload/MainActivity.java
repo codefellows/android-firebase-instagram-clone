@@ -2,23 +2,17 @@ package com.example.moonmayor.firebaseupload;
 
 import android.content.Context;
 import android.content.Intent;
-import android.database.DataSetObserver;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.content.FileProvider;
-import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.DrawableUtils;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
@@ -38,13 +32,10 @@ import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -90,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
         mClearPictureButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                clearPicture();
+                hidePicture();
             }
         });
 
@@ -109,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void clearPicture() {
+    private void hidePicture() {
         mImageResult.setVisibility(View.GONE);
     }
 
@@ -180,6 +171,7 @@ public class MainActivity extends AppCompatActivity {
                 Uri downloadUrl = taskSnapshot.getDownloadUrl();
                 mMessage.setText(downloadUrl.toString());
                 addPhotoToList(downloadUrl.toString());
+                hidePicture();
             }
         })
         .addOnFailureListener(new OnFailureListener() {
@@ -204,6 +196,9 @@ public class MainActivity extends AppCompatActivity {
                     String uri = snapshot.getValue(String.class);
                     urls.add(uri);
                 }
+
+                // reverse the list so oldest items appear at the end.
+                Collections.reverse(urls);
 
                 mListAdapter = new ImageListAdapter(mContext, R.layout.image_item, urls);
                 ListView list = (ListView) findViewById(R.id.list);
