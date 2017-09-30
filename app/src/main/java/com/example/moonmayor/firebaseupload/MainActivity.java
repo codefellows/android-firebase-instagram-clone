@@ -17,7 +17,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -216,27 +215,6 @@ public class MainActivity extends AppCompatActivity {
 
         DatabaseReference pushRef = photoRef.push();
         pushRef.setValue(url);
-    }
-
-    private void attachDBListeners() {
-        DatabaseReference myRef = mDB.getReference().child("message");
-        myRef.setValue("what up");
-        myRef.push();
-
-        myRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                String val = dataSnapshot.getValue(String.class);
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-    }
-
-    private void listFiles() {
     }
 
     private File createImageFile() throws IOException {
