@@ -189,10 +189,8 @@ public class MainActivity extends AppCompatActivity {
                 List<String> urls = new ArrayList<>();
 
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    String url = snapshot.child("url").getValue(String.class);
-                    String user = snapshot.child("user").getValue(String.class);
-                    String description = snapshot.child("description").getValue(String.class);
-                    urls.add(url);
+                    ImagePost post = ImagePost.buildFromSnapshot(snapshot);
+                    urls.add(post.url);
                 }
 
                 // reverse the list so oldest items appear at the end.
@@ -206,16 +204,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void addPhotoToList(String url, String description) {
-        DatabaseReference photoRef = mDB.getReference().child("photos");
-        DatabaseReference imageData = photoRef.push();
-        imageData.child("url").setValue(url);
-        imageData.child("user").setValue("slothprovider");
-        imageData.child("description").setValue(description);
-
-        DatabaseReference likes = imageData.child("likes");
-        likes.push().setValue("slothprovider");
-        likes.push().setValue("user2");
-        likes.push().setValue("zuck");
+        ImagePost post = new ImagePost(url, "slothprovider", description, new ArrayList<String>());
+        post.saveToDB(mDB);
     }
 
     private File createImageFile() throws IOException {
