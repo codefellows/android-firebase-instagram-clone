@@ -19,11 +19,11 @@ import java.util.List;
  * Created by moonmayor on 9/29/17.
  */
 
-public class ImageListAdapter extends ArrayAdapter<String> {
+public class ImageListAdapter extends ArrayAdapter<ImagePost> {
 
     Context mContext;
 
-    private List<String> mUrls;
+    private List<ImagePost> mPosts;
     private ViewHolder holder;
 
     public class ViewHolder {
@@ -67,14 +67,14 @@ public class ImageListAdapter extends ArrayAdapter<String> {
         }
     }
 
-    public ImageListAdapter(Context context, int resource, List<String> urls) {
-        super(context, resource, urls);
+    public ImageListAdapter(Context context, int resource, List<ImagePost> posts) {
+        super(context, resource, posts);
         mContext = context;
-        mUrls = urls;
+        mPosts = posts;
     }
 
-    public void add(String url) {
-        mUrls.add(url);
+    public void add(ImagePost post) {
+        mPosts.add(post);
         this.notifyDataSetChanged();
     }
 
@@ -89,7 +89,8 @@ public class ImageListAdapter extends ArrayAdapter<String> {
             holder.image.setImageBitmap(null);
         }
 
-        String url = getItem(i);
+        ImagePost post = getItem(i);
+        String url = post.url;
         new LoadImageTask(url, holder.image).execute();
         return convertView;
     }

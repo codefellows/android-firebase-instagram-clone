@@ -186,17 +186,17 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                List<String> urls = new ArrayList<>();
+                List<ImagePost> posts = new ArrayList<>();
 
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     ImagePost post = ImagePost.buildFromSnapshot(snapshot);
-                    urls.add(post.url);
+                    posts.add(post);
                 }
 
                 // reverse the list so oldest items appear at the end.
-                Collections.reverse(urls);
+                Collections.reverse(posts);
 
-                mListAdapter = new ImageListAdapter(mContext, R.layout.image_item, urls);
+                mListAdapter = new ImageListAdapter(mContext, R.layout.image_item, posts);
                 ListView list = (ListView) findViewById(R.id.list);
                 list.setAdapter(mListAdapter);
             }
