@@ -27,25 +27,36 @@ public class ImageListAdapter extends ArrayAdapter<ImagePost> {
     private ViewHolder holder;
 
     public class ViewHolder {
+        ImagePost post;
+
         ImageView heart;
         TextView likes;
         TextView author;
         TextView timestamp;
         ImageView image;
 
-        public ViewHolder(View view) {
+        public ViewHolder(View view, ImagePost post) {
+            this.post = post;
+
             this.heart = view.findViewById(R.id.heart);
             this.likes = view.findViewById(R.id.likes);
             this.author = view.findViewById(R.id.author);
             this.timestamp = view.findViewById(R.id.timestamp);
             this.image = view.findViewById(R.id.image);
 
-            // just some default text for now.
-            this.likes.setText("11 likes");
-            this.author.setText("slothprovider @everyone here's more sloths for you!");
+            this.author.setText(post.user + " " + post.description);
             this.timestamp.setText("54 minutes ago");
 
             configureHeartToggler();
+            setLikeCount();
+        }
+
+        private void setLikeCount() {
+            String suffix = " likes";
+            if (post.likes.size() == 1) {
+                suffix = " like";
+            }
+            this.likes.setText("" + post.likes.size() + suffix);
         }
 
         private void configureHeartToggler() {
@@ -59,9 +70,12 @@ public class ImageListAdapter extends ArrayAdapter<ImagePost> {
                     ImageView image = (ImageView) view;
                     if (image.getDrawable() == emptyHeart) {
                         ViewHolder.this.heart.setImageDrawable(fullHeart);
+                        ViewHolder.this.post.likes.add("you");
                     } else {
                         ViewHolder.this.heart.setImageDrawable(emptyHeart);
+                        ViewHolder.this.post.likes.remove("you");
                     }
+                    ViewHolder.this.setLikeCount();
                 }
             });
         }
@@ -82,7 +96,7 @@ public class ImageListAdapter extends ArrayAdapter<ImagePost> {
     public View getView(int i, View convertView, ViewGroup parent) {
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.image_item, parent, false);
-            holder = new ViewHolder(convertView);
+            holder = new ViewHolder(convertView, this.getItem(i));
             convertView.setTag(holder);
         } else {
             holder = (ViewHolder) convertView.getTag();
