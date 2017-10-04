@@ -38,6 +38,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import static android.graphics.BitmapFactory.decodeFile;
 import static android.provider.AlarmClock.EXTRA_MESSAGE;
 
 public class MainActivity extends AppCompatActivity {
@@ -126,7 +127,14 @@ public class MainActivity extends AppCompatActivity {
             upload();
         } else if  (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
             Bitmap bitmap = null;
-            if (data != null) {
+            Bitmap decodedBitmap = BitmapFactory.decodeFile(mCurrentPhotoPath);
+            if (decodedBitmap != null) {
+                mImageResult.setImageBitmap(bitmap);
+                // Send user to the PreparePost activity.
+                Intent intent = new Intent(MainActivity.this, PreparePostActivity.class);
+                intent.putExtra(PreparePostActivity.EXTRA_FILEPATH, mCurrentPhotoPath);
+                startActivityForResult(intent, REQUEST_PREPARE_POST);
+            } else if (data != null) {
                 Bundle extras = data.getExtras();
                 if (extras != null) {
                     bitmap = (Bitmap) extras.get("data");
@@ -235,7 +243,7 @@ public class MainActivity extends AppCompatActivity {
         // Get the dimensions of the bitmap
         BitmapFactory.Options bmOptions = new BitmapFactory.Options();
         bmOptions.inJustDecodeBounds = true;
-        BitmapFactory.decodeFile(filepath, bmOptions);
+        decodeFile(filepath, bmOptions);
         int photoW = bmOptions.outWidth;
         int photoH = bmOptions.outHeight;
 
@@ -248,7 +256,7 @@ public class MainActivity extends AppCompatActivity {
         bmOptions.inSampleSize = scaleFactor;
         bmOptions.inPurgeable = true;
 
-        Bitmap bitmap = BitmapFactory.decodeFile(mCurrentPhotoPath, bmOptions);
+        Bitmap bitmap = decodeFile(mCurrentPhotoPath, bmOptions);
         mImageResult.setImageBitmap(bitmap);
     }
 }
