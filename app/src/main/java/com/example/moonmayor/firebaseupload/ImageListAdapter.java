@@ -13,6 +13,7 @@ import android.widget.ListAdapter;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -45,7 +46,7 @@ public class ImageListAdapter extends ArrayAdapter<ImagePost> {
             this.image = view.findViewById(R.id.image);
 
             this.author.setText(post.user + " " + post.description);
-            this.timestamp.setText("54 minutes ago");
+            this.timestamp.setText("" + new Date(post.timestamp));
 
             configureHeartToggler();
             setLikeCount();
