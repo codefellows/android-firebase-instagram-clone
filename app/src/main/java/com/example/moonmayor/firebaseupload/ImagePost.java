@@ -37,6 +37,18 @@ public class ImagePost {
         return likes.contains(user);
     }
 
+    public void addLike(String username) {
+        if (!likes.contains(username)) {
+            likes.add(username);
+        }
+    }
+
+    public void removeLike(String username) {
+        if (likes.contains(username)) {
+            likes.remove(username);
+        }
+    }
+
     public void saveToDB(FirebaseDatabase db) {
         DatabaseReference photoRef = db.getReference().child("photos");
         DatabaseReference imageData = photoRef.push();
