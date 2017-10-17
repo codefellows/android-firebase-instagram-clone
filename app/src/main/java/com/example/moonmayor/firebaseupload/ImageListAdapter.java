@@ -72,16 +72,18 @@ public class ImageListAdapter extends ArrayAdapter<ImagePost> {
             final Drawable fullHeart = mContext.getResources().getDrawable(R.drawable.insta_heart_full);
             this.heart.setImageDrawable(emptyHeart);
 
+            final ImagePost post = this.post;
+
             this.heart.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     ImageView image = (ImageView) view;
                     if (image.getDrawable() == emptyHeart) {
                         ViewHolder.this.heart.setImageDrawable(fullHeart);
-                        ViewHolder.this.post.likes.add("you");
+                        ViewHolder.this.post.addLike(post.user);
                     } else {
                         ViewHolder.this.heart.setImageDrawable(emptyHeart);
-                        ViewHolder.this.post.likes.remove("you");
+                        ViewHolder.this.post.removeLike(post.user);
                     }
                     ViewHolder.this.setLikeCount();
                 }
