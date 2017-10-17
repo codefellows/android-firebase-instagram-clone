@@ -53,7 +53,7 @@ public class ImagePost {
         DatabaseReference photoRef = db.getReference().child("photos");
         DatabaseReference imageData = photoRef.push();
             imageData.child("url").setValue(url);
-            imageData.child("user").setValue("slothprovider");
+            imageData.child("user").setValue(user);
             imageData.child("description").setValue(description);
             imageData.child("timestamp").setValue(ServerValue.TIMESTAMP);
 

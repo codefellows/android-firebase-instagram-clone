@@ -52,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
     private final int REQUEST_PREPARE_POST = 2;
     private String mCurrentPhotoPath;
 
+    String mUsername;
     Context mContext;
 
     private StorageReference mStorageRef;
@@ -67,6 +68,14 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+
+        // check to see if the user is already logged in
+        mUsername = MySharedPreferences.getUsername(this);
+        if (mUsername == null) {
+            Intent loginIntent = new Intent(MainActivity.this, LoginActivity.class);
+            startActivity(loginIntent);
+            return;
+        }
 
         mContext = this;
 
@@ -202,7 +211,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void addPhotoToList(String url, String description) {
-        ImagePost post = new ImagePost(url, "slothprovider", description, new ArrayList<String>());
+        ImagePost post = new ImagePost(url, mUsername, description, new ArrayList<String>());
         post.saveToDB(mDB);
     }
 
