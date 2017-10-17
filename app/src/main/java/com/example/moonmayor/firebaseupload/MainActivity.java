@@ -38,6 +38,11 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnCheckedChanged;
+import butterknife.OnClick;
+
 import static android.graphics.BitmapFactory.decodeFile;
 import static android.provider.AlarmClock.EXTRA_MESSAGE;
 
@@ -52,8 +57,8 @@ public class MainActivity extends AppCompatActivity {
     private StorageReference mStorageRef;
     private FirebaseDatabase mDB;
 
-    ImageView mImageResult;
-    Button mTakePictureButton;
+    @BindView(R.id.imageResult) ImageView mImageResult;
+    @BindView(R.id.takePicture) Button mTakePictureButton;
 
     private ListAdapter mListAdapter;
 
@@ -61,33 +66,22 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
 
         mContext = this;
 
         mStorageRef = FirebaseStorage.getInstance().getReference();
         mDB = FirebaseDatabase.getInstance();
-        mImageResult = (ImageView) findViewById(R.id.imageResult);
-        mTakePictureButton = (Button) findViewById(R.id.takePicture);
 
-
-        attachClickListeners();
         loadPictures();
-    }
-
-    private void attachClickListeners() {
-        mTakePictureButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                takePicture();
-            }
-        });
     }
 
     private void hidePicture() {
         mImageResult.setVisibility(View.GONE);
     }
 
-    private void takePicture() {
+    @OnClick(R.id.takePicture)
+    public void takePicture() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
             // Create the File where the photo should go

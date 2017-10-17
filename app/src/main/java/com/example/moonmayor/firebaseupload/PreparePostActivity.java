@@ -11,6 +11,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+
 /**
  * Created by moonmayor on 9/30/17.
  */
@@ -21,47 +25,36 @@ public class PreparePostActivity extends AppCompatActivity {
 
     String mFilepath;
 
-    ImageView mImage;
-    Button mCancel;
-    Button mPost;
+    @BindView(R.id.preview) ImageView mImage;
+    @BindView(R.id.cancel) Button mCancel;
+    @BindView(R.id.post) Button mPost;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.prepare_post);
-
-        mImage = (ImageView) findViewById(R.id.preview);
-        mCancel = (Button) findViewById(R.id.cancel);
-        mPost = (Button) findViewById(R.id.post);
+        ButterKnife.bind(this);
 
         mFilepath = getIntent().getStringExtra(EXTRA_FILEPATH);
         setPicFromFile(mFilepath);
-
-        attachClickHandlers();
     }
 
-    private void attachClickHandlers() {
-        mCancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // send the user back to wherever they came from.
-                onBackPressed();
-            }
-        });
+    @OnClick(R.id.cancel)
+    public void cancel() {
+        // send the user back to wherever they came from.
+        onBackPressed();
+    }
 
-        mPost.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent result = new Intent(PreparePostActivity.this, MainActivity.class);
+    @OnClick(R.id.post)
+    public void post() {
+        Intent result = new Intent(PreparePostActivity.this, MainActivity.class);
 
-                EditText editText = (EditText) findViewById(R.id.description);
-                String message = editText.getText().toString();
-                result.putExtra(EXTRA_FILEPATH, mFilepath);
-                result.putExtra(EXTRA_DESCRIPTION, message);
+        EditText editText = (EditText) findViewById(R.id.description);
+        String message = editText.getText().toString();
+        result.putExtra(EXTRA_FILEPATH, mFilepath);
+        result.putExtra(EXTRA_DESCRIPTION, message);
 
-                setResult(RESULT_OK, result);
-                finish();
-            }
-        });
+        setResult(RESULT_OK, result);
+        finish();
     }
 
     private void setPicFromFile(String filepath) {
