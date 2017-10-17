@@ -21,7 +21,7 @@ public class LoadImageTask extends AsyncTask<Void, Void, Bitmap> {
     private static Map<String, Bitmap> cache = new HashMap<>();
 
     public LoadImageTask (String url, ImageView imageView) {
-       mUrl = url;
+        mUrl = url;
         mImageView = imageView;
     }
 
