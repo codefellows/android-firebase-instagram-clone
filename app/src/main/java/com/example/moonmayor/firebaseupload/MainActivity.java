@@ -190,7 +190,11 @@ public class MainActivity extends AppCompatActivity {
 
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     ImagePost post = ImagePost.buildFromSnapshot(snapshot);
-                    posts.add(post);
+                    // the database sends the entire list every time.
+                    // prevent duplicates from being added.
+                    if (!posts.contains(post)) {
+                        posts.add(post);
+                    }
                 }
 
                 // reverse the list so oldest items appear at the end.

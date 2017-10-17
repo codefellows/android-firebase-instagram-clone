@@ -28,6 +28,7 @@ public class ImageListAdapter extends ArrayAdapter<ImagePost> {
     private ViewHolder holder;
 
     public class ViewHolder {
+        View view;
         ImagePost post;
 
         ImageView heart;
@@ -37,6 +38,15 @@ public class ImageListAdapter extends ArrayAdapter<ImagePost> {
         ImageView image;
 
         public ViewHolder(View view, ImagePost post) {
+            this.view = view;
+            this.post = post;
+
+            attachPost(post);
+            configureHeartToggler();
+            setLikeCount();
+        }
+
+        public void attachPost(ImagePost post) {
             this.post = post;
 
             this.heart = view.findViewById(R.id.heart);
@@ -47,9 +57,6 @@ public class ImageListAdapter extends ArrayAdapter<ImagePost> {
 
             this.author.setText(post.user + " " + post.description);
             this.timestamp.setText("" + new Date(post.timestamp));
-
-            configureHeartToggler();
-            setLikeCount();
         }
 
         private void setLikeCount() {
@@ -107,6 +114,9 @@ public class ImageListAdapter extends ArrayAdapter<ImagePost> {
         ImagePost post = getItem(i);
         String url = post.url;
         new LoadImageTask(url, holder.image).execute();
+
+        holder.attachPost(post);
+
         return convertView;
     }
 }
