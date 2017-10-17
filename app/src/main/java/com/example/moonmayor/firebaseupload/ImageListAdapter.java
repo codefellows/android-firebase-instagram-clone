@@ -70,7 +70,12 @@ public class ImageListAdapter extends ArrayAdapter<ImagePost> {
         private void configureHeartToggler() {
             final Drawable emptyHeart = mContext.getResources().getDrawable(R.drawable.insta_heart_empty);
             final Drawable fullHeart = mContext.getResources().getDrawable(R.drawable.insta_heart_full);
-            this.heart.setImageDrawable(emptyHeart);
+
+            if (this.post.isLikedByUser(MySharedPreferences.getUsername(mContext))) {
+                this.heart.setImageDrawable(fullHeart);
+            } else {
+                this.heart.setImageDrawable(emptyHeart);
+            }
 
             final ImagePost post = this.post;
 

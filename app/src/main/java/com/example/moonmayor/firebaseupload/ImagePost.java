@@ -16,15 +16,15 @@ import java.util.List;
  */
 
 public class ImagePost {
+    private FirebaseDatabase db;
     public String url;
     public String user;
     public String description;
     public List<String> likes;
     public Long timestamp;
 
-    private DatabaseReference mLikesRef;
-
-    public ImagePost(String url, String user, String description, List<String> likes) {
+    public ImagePost(FirebaseDatabase db, String url, String user, String description, List<String> likes) {
+        this.db = db;
         this.url = url;
         this.user = user;
         this.description = description;
@@ -32,8 +32,8 @@ public class ImagePost {
         this.timestamp = (new Date()).getTime();
     }
 
-    public ImagePost(String url, String user, String description, List<String> likes, long timestamp) {
-        this(url, user, description, likes);
+    public ImagePost(FirebaseDatabase db, String url, String user, String description, List<String> likes, long timestamp) {
+        this(db, url, user, description, likes);
         this.timestamp = timestamp;
     }
 
@@ -44,7 +44,9 @@ public class ImagePost {
     public void addLike(String username) {
         if (!likes.contains(username)) {
             likes.add(username);
-            mLikesRef.push().setValue(user);
+
+            DatabaseReference likesRef = this.getLikesRef();
+            likesRef.child(username).setValue(true);
         }
     }
 
@@ -52,21 +54,22 @@ public class ImagePost {
         if (likes.contains(username)) {
             likes.remove(username);
 
-            mLikesRef.removeValue();
-            for (String user : likes) {
-                mLikesRef.push().setValue(user);
-            }
+            DatabaseReference likesRef = this.getLikesRef();
+            likesRef.child(username).removeValue();
         }
     }
 
     public DatabaseReference getLikesRef() {
-        return null;
-        //return db.getReference().child("photos").child(url).child("likes");
+        return this.db.getReference().child("photos").child(this.dbKey()).child("likes");
     }
 
-    public void saveToDB(FirebaseDatabase db) {
+    public String dbKey() {
+        return "" + url.hashCode();
+    }
+
+    public void saveToDB() {
         // derive the DB key from the url so we can look this post up and modify it later.
-        String key = "" + url.hashCode();
+        String key = this.dbKey();
 
         DatabaseReference photoRef = db.getReference().child("photos");
         DatabaseReference imageData = photoRef.child(key);
@@ -75,13 +78,13 @@ public class ImagePost {
         imageData.child("description").setValue(description);
         imageData.child("timestamp").setValue(ServerValue.TIMESTAMP);
 
-        mLikesRef = imageData.child("likes");
-        mLikesRef.child("slothprovider").setValue(true);
-        mLikesRef.child("user2").setValue(true);
-        mLikesRef.child("zuck").setValue(true);
+        DatabaseReference likesRef = imageData.child("likes");
+        likesRef.child("slothprovider").setValue(true);
+        likesRef.child("user2").setValue(true);
+        likesRef.child("zuck").setValue(true);
     }
 
-    public static ImagePost buildFromSnapshot(DataSnapshot snapshot) {
+    public static ImagePost buildFromSnapshot(FirebaseDatabase db, DataSnapshot snapshot) {
         String url = (String) snapshot.child("url").getValue();
         String user = (String) snapshot.child("user").getValue();
         String description = (String) snapshot.child("description").getValue();
@@ -96,7 +99,7 @@ public class ImagePost {
             likes.add(like.getKey());
         }
 
-        ImagePost post = new ImagePost(url, user, description, likes, timestamp);
+        ImagePost post = new ImagePost(db, url, user, description, likes, timestamp);
         return post;
     }
 }

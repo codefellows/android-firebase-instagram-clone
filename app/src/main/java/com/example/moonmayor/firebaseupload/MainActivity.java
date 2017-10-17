@@ -192,7 +192,7 @@ public class MainActivity extends AppCompatActivity {
                 List<ImagePost> posts = new ArrayList<>();
 
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    ImagePost post = ImagePost.buildFromSnapshot(snapshot);
+                    ImagePost post = ImagePost.buildFromSnapshot(mDB, snapshot);
                     // the database sends the entire list every time.
                     // prevent duplicates from being added.
                     if (!posts.contains(post)) {
@@ -211,8 +211,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void addPhotoToList(String url, String description) {
-        ImagePost post = new ImagePost(url, mUsername, description, new ArrayList<String>());
-        post.saveToDB(mDB);
+        ImagePost post = new ImagePost(mDB, url, mUsername, description, new ArrayList<String>());
+        post.saveToDB();
     }
 
     private File createImageFile() throws IOException {
